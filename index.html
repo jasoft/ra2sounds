@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>红警2音效库浏览器</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: 'Courier New', Courier, monospace; display: flex; height: 100vh; margin: 0; }
+        #sidebar { width: 300px; background: #262626; border-right: 2px solid #336633; overflow-y: auto; padding: 10px; }
+        #main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .sound-item { cursor: pointer; padding: 5px; border-bottom: 1px solid #333; }
+        .sound-item:hover { background: #333; }
+        #player { border: 2px solid #00ff00; padding: 20px; background: #000; }
+        h1 { margin-top: 0; font-size: 1.2em; text-align: center; border-bottom: 2px solid #00ff00; }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h1>音效库</h1>
+        <div id="sound-list"></div>
+    </div>
+    <div id="main">
+        <div id="player">
+            <h2 id="current-name">选择一个音效</h2>
+            <audio id="audio" controls></audio>
+        </div>
+    </div>
+    <script>
+        const sounds = [
+            'unknown_05562f64.wav', 'unknown_0cfbd6c3.wav', 'unknown_171df55c.wav',
+            'unknown_27c26d24.wav', 'unknown_2817ef5c.wav', 'unknown_30689089.wav',
+            'unknown_32fa5e9b.wav', 'unknown_3fce72e3.wav', 'unknown_67061778.wav',
+            'unknown_6f7ece2c.wav', 'unknown_989f25b8.wav', 'unknown_9b86f980.wav',
+            'unknown_ab9d1eba.wav', 'unknown_abbc4614.wav', 'unknown_b00761a5.wav',
+            'unknown_b54305ba.wav', 'unknown_bd3addde.wav', 'unknown_c5313cea.wav',
+            'unknown_cb076ad4.wav', 'unknown_dc3cb408.wav'
+        ];
+        const list = document.getElementById('sound-list');
+        const audio = document.getElementById('audio');
+        const nameDisplay = document.getElementById('current-name');
+
+        sounds.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'sound-item';
+            div.innerText = s;
+            div.onclick = () => {
+                nameDisplay.innerText = s;
+                audio.src = 'extracted/' + s;
+                audio.play();
+            };
+            list.appendChild(div);
+        });
+    </script>
+</body>
+</html>
