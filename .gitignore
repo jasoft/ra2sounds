@@ -20,3 +20,14 @@ __pycache__/
 
 # 本地临时文件
 *.log
+
+# 音效备注数据库（用户本地产生）
+notes.db
+notes.db-journal
+notes.db-wal
+notes.db-shm
+
+# Node modules
+node_modules/
+package-lock.json
+package.json

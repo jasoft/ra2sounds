@@ -160,6 +160,45 @@
     border:1px solid var(--line); color: var(--text-dim); margin-left:8px;
   }
 
+  /* ---------------- 音效备注 ---------------- */
+  #note {
+    width: min(680px, 100%); margin-top: 4px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px 14px; text-align: left;
+  }
+  #note .note-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  #note .note-title {
+    font-size: 12px; color: var(--text-dim); letter-spacing: 1px;
+  }
+  #note .note-flag {
+    font-size: 10px; padding: 2px 8px; border-radius: 8px; margin-left: auto;
+    border: 1px solid var(--line); color: var(--text-dim); white-space: nowrap;
+  }
+  #note.editable .note-flag { color: var(--green); border-color: var(--green-dim); }
+  #note .note-text {
+    width: 100%; min-height: 64px; resize: vertical;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
+    color: var(--text); font-family: inherit; font-size: 13px; line-height: 1.6;
+    padding: 8px 10px;
+  }
+  #note .note-text:focus { outline: none; border-color: var(--green); }
+  #note .note-bar {
+    display: flex; align-items: center; gap: 10px; margin-top: 8px;
+  }
+  #note .note-save {
+    background: var(--panel2); border: 1px solid var(--green-dim);
+    color: var(--green); font-family: inherit; font-size: 13px;
+    padding: 6px 16px; border-radius: 4px; cursor: pointer; transition: .15s;
+  }
+  #note .note-save:hover { background: var(--green); color: #060906; }
+  #note .note-save:disabled { opacity: .4; cursor: default; }
+  #note .note-save:disabled:hover { background: var(--panel2); color: var(--green); }
+  #note .note-status { font-size: 11px; color: var(--text-dim); }
+  #note .note-msg { font-size: 11px; color: var(--amber); margin-left: auto; }
+  #note.readonly .note-text { color: var(--text-dim); }
+
   #viz {
     width: min(640px, 100%); height: 110px;
     background: #060906; border: 1px solid var(--line); border-radius: 4px;
@@ -230,6 +269,20 @@
         </div>
       </div>
 
+      <div id="note" class="readonly">
+        <div class="note-head">
+          <span class="note-title">📝 音效备注</span>
+          <span class="note-flag" id="noteFlag">只读</span>
+        </div>
+        <textarea class="note-text" id="noteText"
+          placeholder="点选一个音效后，可在此添加备注（仅局域网用户可保存）"></textarea>
+        <div class="note-bar">
+          <button class="note-save" id="noteSave" disabled>保存备注</button>
+          <span class="note-status" id="noteStatus"></span>
+          <span class="note-msg" id="noteMsg"></span>
+        </div>
+      </div>
+
       <canvas id="viz"></canvas>
 
       <div id="controls">
@@ -263,6 +316,14 @@
   const cctx = canvas.getContext("2d");
   let currentItem = null;
   let activeSide = "allied";
+
+  // 备注区元素
+  const noteBox = document.getElementById("note");
+  const noteText = document.getElementById("noteText");
+  const noteSave = document.getElementById("noteSave");
+  const noteFlag = document.getElementById("noteFlag");
+  const noteStatus = document.getElementById("noteStatus");
+  const noteMsg = document.getElementById("noteMsg");
 
   function fmt(sec){
     if (sec == null || isNaN(sec)) return "0:00";
@@ -412,6 +473,67 @@
         <span>采样：${it.sample_rate||"?"}Hz / ${it.channels||"?"}ch</span>
         <span>阵营代码：${it.code}</span>
       </div>`;
+    loadNote(it.file);
+  }
+
+  // ---------- 音效备注 ----------
+  function setNoteMode(editable){
+    noteBox.classList.toggle("editable", editable);
+    noteBox.classList.toggle("readonly", !editable);
+    noteFlag.textContent = editable ? "可编辑" : "只读";
+    noteSave.disabled = !editable;
+    noteText.readOnly = !editable;
+    noteText.placeholder = editable
+      ? "为这条音效写点备注吧…"
+      : "只读模式：仅局域网 / 本机客户端可编辑备注";
+  }
+
+  function loadNote(file){
+    noteText.value = "";
+    noteStatus.textContent = "";
+    noteMsg.textContent = "";
+    fetch("api/notes?file=" + encodeURIComponent(file))
+      .then(r => r.json())
+      .then(d => {
+        setNoteMode(!!d.editable);
+        noteText.value = d.note || "";
+        if (d.updated_at)
+          noteStatus.textContent = "最后更新：" + d.updated_at.replace("T", " ");
+      })
+      .catch(() => {
+        setNoteMode(false);
+        noteMsg.textContent = "备注加载失败";
+      });
+  }
+
+  function saveNote(){
+    if (noteSave.disabled) return;
+    const file = currentItem && currentItem.file;
+    if (!file) return;
+    noteSave.disabled = true;
+    noteMsg.textContent = "保存中…";
+    fetch("api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file: file, note: noteText.value })
+    })
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (ok){
+          noteMsg.textContent = "";
+          noteStatus.textContent = "最后更新：" + (d.updated_at||"").replace("T", " ");
+        } else {
+          noteMsg.textContent = d.error || "保存失败";
+        }
+      })
+      .catch(() => { noteMsg.textContent = "保存失败"; })
+      .finally(() => {
+        // 写接口可能返回 403（非局域网），据此刷新可编辑状态
+        fetch("api/notes?file=" + encodeURIComponent(file))
+          .then(r => r.json())
+          .then(d => setNoteMode(!!d.editable))
+          .catch(() => {});
+      });
   }
 
   audio.onplay = () => {
@@ -432,6 +554,11 @@
     if (audio.duration) audio.currentTime = seek.value/1000 * audio.duration;
   };
   vol.oninput = () => { audio.volume = vol.value/100; };
+
+  noteSave.onclick = saveNote;
+  noteText.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter"){ e.preventDefault(); saveNote(); }
+  });
 
   // ---------- WebAudio 可视化 ----------
   function ensureAudioGraph(){
