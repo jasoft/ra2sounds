@@ -1,54 +1,504 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>红警2音效库浏览器</title>
-    <style>
-        body { background: #1a1a1a; color: #00ff00; font-family: 'Courier New', Courier, monospace; display: flex; height: 100vh; margin: 0; }
-        #sidebar { width: 300px; background: #262626; border-right: 2px solid #336633; overflow-y: auto; padding: 10px; }
-        #main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .sound-item { cursor: pointer; padding: 5px; border-bottom: 1px solid #333; }
-        .sound-item:hover { background: #333; }
-        #player { border: 2px solid #00ff00; padding: 20px; background: #000; }
-        h1 { margin-top: 0; font-size: 1.2em; text-align: center; border-bottom: 2px solid #00ff00; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红警2 / 尤里的复仇 · 音效库浏览器</title>
+<style>
+  :root {
+    --bg: #0c0f0c;
+    --panel: #151915;
+    --panel2: #1d241d;
+    --line: #2c382c;
+    --green: #6fcf6f;
+    --green-dim: #3a7a3a;
+    --amber: #ffb300;
+    --text: #d6e8d6;
+    --text-dim: #7c937c;
+    --soviet: #e0483f;
+    --allied: #3f93e0;
+    --yuri: #a05fd0;
+    --other: #b0a589;
+    --mono: "Consolas", "Courier New", ui-monospace, "DejaVu Sans Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ---------------- 顶栏 ---------------- */
+  header {
+    border-bottom: 2px solid var(--green-dim);
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(180deg, #121712, #0c0f0c);
+    flex-wrap: wrap;
+  }
+  header h1 {
+    font-size: 17px; margin: 0; letter-spacing: 2px; color: var(--green);
+    text-shadow: 0 0 8px rgba(111,207,111,.4);
+    white-space: nowrap;
+  }
+  header .sub { color: var(--text-dim); font-size: 12px; }
+  header .stat { margin-left: auto; font-size: 12px; color: var(--amber); white-space: nowrap; }
+
+  /* 阵营切换标签 */
+  #sideTabs { display: flex; gap: 6px; width: 100%; margin-top: 2px; }
+  .side-tab {
+    flex: 1; min-width: 80px; text-align: center;
+    padding: 6px 8px; cursor: pointer; user-select: none;
+    background: var(--panel2); border: 1px solid var(--line);
+    border-bottom: 3px solid transparent; border-radius: 3px 3px 0 0;
+    font-size: 13px; color: var(--text-dim); transition: .12s;
+  }
+  .side-tab:hover { color: var(--text); background: #232c23; }
+  .side-tab.active { color: var(--text); background: #232c23; }
+  .side-tab .cnt { font-size: 11px; color: var(--text-dim); margin-left: 6px; }
+  .side-tab[data-side="soviet"].active { border-bottom-color: var(--soviet); }
+  .side-tab[data-side="allied"].active { border-bottom-color: var(--allied); }
+  .side-tab[data-side="yuri"].active   { border-bottom-color: var(--yuri); }
+  .side-tab[data-side="other"].active  { border-bottom-color: var(--other); }
+
+  main { flex: 1; display: flex; min-height: 0; }
+
+  /* ---------------- 侧栏（兵种列表） ---------------- */
+  #sidebar {
+    width: 360px; min-width: 300px;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  #search {
+    margin: 8px; padding: 8px 10px; width: calc(100% - 16px);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 3px;
+    color: var(--text); font-family: inherit; font-size: 13px;
+  }
+  #search:focus { outline: none; border-color: var(--green); }
+  #tree { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
+
+  .unit {
+    margin: 3px 0; border: 1px solid transparent; border-radius: 4px;
+    background: var(--panel2); overflow: hidden;
+  }
+  .unit-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 8px; cursor: pointer;
+  }
+  .unit-head:hover { background: #253025; }
+  .unit-head .badge { flex-shrink: 0; }
+  .unit-head .utwist { width: 10px; color: var(--text-dim); font-size: 10px; }
+  .unit-head .uname { flex: 1; min-width: 0; }
+  .unit-head .uname .zh { font-size: 14px; color: var(--text); }
+  .unit-head .uname .en {
+    font-size: 10px; color: var(--text-dim); margin-left: 6px;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .unit-head .ucnt { font-size: 10px; color: var(--text-dim); }
+  .unit-head .proto-tag {
+    font-size: 9px; padding: 1px 6px; border-radius: 8px;
+    border: 1px solid var(--line); color: var(--text-dim);
+  }
+
+  .sounds { display: none; padding: 2px 0 4px 30px; }
+  .unit.open .sounds { display: block; }
+
+  .item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 8px; cursor: pointer; border-radius: 3px;
+    border: 1px solid transparent; font-size: 12px;
+  }
+  .item:hover { background: #232a23; border-color: var(--line); }
+  .item.playing { background: #1b3320; border-color: var(--green); }
+  .item .ico { color: var(--green-dim); font-size: 11px; width: 14px; text-align: center; }
+  .item.playing .ico { color: var(--green); }
+  .item .lbl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item .lbl .act { color: var(--amber); font-size: 11px; margin-left: 6px; }
+  .item .lbl .fname { color: var(--text-dim); font-size: 10px; margin-left: 6px; }
+  .item .dur { color: var(--text-dim); font-size: 11px; }
+
+  /* ---------------- 右侧内容区 ---------------- */
+  #content {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    padding: 18px; min-width: 0; gap: 16px;
+    background: radial-gradient(ellipse at 50% 0%, #141c14 0%, #0c0f0c 70%);
+    overflow-y: auto;
+  }
+  #now {
+    width: min(680px, 100%);
+    text-align: center;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 6px; padding: 18px 20px; margin-top: 8px;
+  }
+  #now .side-tag {
+    display: inline-block; font-size: 11px; padding: 3px 11px; border-radius: 11px;
+    background: var(--panel2); color: var(--text-dim); margin-bottom: 10px;
+    border: 1px solid var(--line);
+  }
+  #now .badge-lg { margin: 4px auto 8px; display: block; }
+  #now h2 { margin: 4px 0; font-size: 22px; color: var(--text); letter-spacing: 1px; }
+  #now .en { color: var(--text-dim); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+  #now .status-line {
+    margin: 12px 0 6px; font-size: 15px; color: var(--amber);
+  }
+  #now .status-desc {
+    color: var(--text); font-size: 13px; line-height: 1.6;
+    background: var(--panel2); border-left: 3px solid var(--green-dim);
+    border-radius: 0 4px 4px 0; padding: 10px 14px; text-align: left;
+  }
+  #now .meta {
+    margin-top: 12px; font-size: 11px; color: var(--text-dim);
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  }
+  #now .proto-pill {
+    display:inline-block; font-size:10px; padding:2px 8px; border-radius:8px;
+    border:1px solid var(--line); color: var(--text-dim); margin-left:8px;
+  }
+
+  #viz {
+    width: min(640px, 100%); height: 110px;
+    background: #060906; border: 1px solid var(--line); border-radius: 4px;
+    display: block; margin-top: 6px;
+  }
+  #controls {
+    width: min(640px, 100%); display: flex; align-items: center; gap: 14px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px 16px;
+  }
+  #playBtn {
+    width: 50px; height: 50px; border-radius: 50%;
+    border: 2px solid var(--green); background: var(--panel2);
+    color: var(--green); font-size: 19px; cursor: pointer; flex-shrink: 0;
+    transition: .15s;
+  }
+  #playBtn:hover { background: var(--green); color: #060906; box-shadow: 0 0 14px rgba(111,207,111,.5); }
+  #playBtn:disabled { opacity: .4; cursor: default; }
+  #seek { flex: 1; accent-color: var(--green); cursor: pointer; }
+  #time { font-size: 12px; color: var(--text-dim); min-width: 92px; text-align: right; }
+  #vol { width: 86px; accent-color: var(--amber); }
+
+  /* 状态图例 */
+  #legend {
+    width: min(680px, 100%);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px 16px; margin-top: 4px;
+  }
+  #legend h3 { margin: 0 0 8px; font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+  #legend .grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  #legend .lg {
+    font-size: 11px; padding: 3px 9px; border-radius: 10px;
+    background: var(--panel2); border: 1px solid var(--line); color: var(--text);
+    cursor: help;
+  }
+  .empty { color: var(--text-dim); font-style: italic; padding: 20px; text-align: center; }
+
+  ::-webkit-scrollbar { width: 9px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  @media (max-width: 720px) {
+    #sidebar { width: 100%; min-width: 0; }
+    main { flex-direction: column; }
+    #content { display: none; }
+  }
+</style>
 </head>
 <body>
-    <div id="sidebar">
-        <h1>音效库</h1>
-        <div id="sound-list"></div>
-    </div>
-    <div id="main">
-        <div id="player">
-            <h2 id="current-name">选择一个音效</h2>
-            <audio id="audio" controls></audio>
-        </div>
-    </div>
-    <script>
-        const sounds = [
-            'unknown_05562f64.wav', 'unknown_0cfbd6c3.wav', 'unknown_171df55c.wav',
-            'unknown_27c26d24.wav', 'unknown_2817ef5c.wav', 'unknown_30689089.wav',
-            'unknown_32fa5e9b.wav', 'unknown_3fce72e3.wav', 'unknown_67061778.wav',
-            'unknown_6f7ece2c.wav', 'unknown_989f25b8.wav', 'unknown_9b86f980.wav',
-            'unknown_ab9d1eba.wav', 'unknown_abbc4614.wav', 'unknown_b00761a5.wav',
-            'unknown_b54305ba.wav', 'unknown_bd3addde.wav', 'unknown_c5313cea.wav',
-            'unknown_cb076ad4.wav', 'unknown_dc3cb408.wav'
-        ];
-        const list = document.getElementById('sound-list');
-        const audio = document.getElementById('audio');
-        const nameDisplay = document.getElementById('current-name');
+  <header>
+    <h1>▶ 红警2 / 尤里复仇 · 音效库</h1>
+    <span class="sub">单位 / 建筑 / 系统 音效浏览器 · <a href="review.html" style="color:var(--amber)">标签核对页</a></span>
+    <span class="stat" id="stat"></span>
+    <div id="sideTabs"></div>
+  </header>
 
-        sounds.forEach(s => {
-            const div = document.createElement('div');
-            div.className = 'sound-item';
-            div.innerText = s;
-            div.onclick = () => {
-                nameDisplay.innerText = s;
-                audio.src = 'extracted/' + s;
-                audio.play();
-            };
-            list.appendChild(div);
-        });
-    </script>
+  <main>
+    <div id="sidebar">
+      <input id="search" type="text" placeholder="🔍 搜索兵种 / 状态 / 音效名…" autocomplete="off">
+      <div id="tree"></div>
+    </div>
+
+    <div id="content">
+      <div id="now">
+        <span class="side-tag" id="nowSide">待机</span>
+        <div id="nowBody">
+          <p class="empty">◂ 从左侧选择一个兵种，再点任意音效试听</p>
+        </div>
+      </div>
+
+      <canvas id="viz"></canvas>
+
+      <div id="controls">
+        <button id="playBtn" disabled>▶</button>
+        <input id="seek" type="range" min="0" max="1000" value="0" disabled>
+        <span id="time">0:00 / 0:00</span>
+        <input id="vol" type="range" min="0" max="100" value="80" title="音量">
+      </div>
+
+      <div id="legend">
+        <h3>音效状态图例（点击音效查看详细说明）</h3>
+        <div class="grid" id="legendGrid"></div>
+      </div>
+    </div>
+  </main>
+
+  <audio id="audio" preload="metadata"></audio>
+  <script src="badges.js"></script>
+  <script>
+  const SIDE_ZH = { soviet:"苏军", allied:"盟军", yuri:"尤里", other:"系统 / 环境" };
+  const SIDE_COLORS = { soviet:"#e0483f", allied:"#3f93e0", yuri:"#a05fd0", other:"#b0a589" };
+
+  let MANIFEST = { factions: [], items: [] };
+  let audio = document.getElementById("audio");
+  let ctx = null, analyser = null, srcNode = null, rafId = null;
+  const playBtn = document.getElementById("playBtn");
+  const seek = document.getElementById("seek");
+  const timeEl = document.getElementById("time");
+  const vol = document.getElementById("vol");
+  const canvas = document.getElementById("viz");
+  const cctx = canvas.getContext("2d");
+  let currentItem = null;
+  let activeSide = "allied";
+
+  function fmt(sec){
+    if (sec == null || isNaN(sec)) return "0:00";
+    sec = Math.floor(sec);
+    const m = Math.floor(sec/60), s = sec%60;
+    return m + ":" + String(s).padStart(2,"0");
+  }
+
+  // ---------- 加载编目 ----------
+  fetch("sounds.json").then(r => r.json()).then(m => {
+    MANIFEST = m;
+    buildSideTabs(m);
+    renderLegend();
+    document.getElementById("stat").textContent =
+      `共 ${m.total} 个音效 · 4 大阵营`;
+  }).catch(e => {
+    document.getElementById("tree").innerHTML =
+      '<div class="empty">无法加载 sounds.json：' + e + '</div>';
+  });
+
+  // ---------- 阵营切换标签 ----------
+  function buildSideTabs(m){
+    const tabs = document.getElementById("sideTabs");
+    tabs.innerHTML = "";
+    m.factions.forEach(f => {
+      const t = document.createElement("div");
+      t.className = "side-tab" + (f.id === activeSide ? " active" : "");
+      t.dataset.side = f.id;
+      t.innerHTML = `${SIDE_ZH[f.id]||f.name_zh||f.id}<span class="cnt">${f.count}</span>`;
+      t.onclick = () => {
+        activeSide = f.id;
+        document.querySelectorAll(".side-tab").forEach(x => x.classList.remove("active"));
+        t.classList.add("active");
+        renderTree(MANIFEST, document.getElementById("search").value);
+      };
+      tabs.appendChild(t);
+    });
+    // 若默认 activeSide 不存在则取第一个
+    if (!m.factions.some(f => f.id === activeSide) && m.factions[0])
+      activeSide = m.factions[0].id;
+    renderTree(m, "");
+  }
+
+  // ---------- 把某阵营的 items 按 (unit_zh) 聚合成树 ----------
+  function groupByUnit(items){
+    const map = new Map();
+    for (const it of items){
+      const key = it.unit_zh;
+      if (!map.has(key))
+        map.set(key, { unit_zh: it.unit_zh, unit_en: it.unit_en,
+                       side: it.side, proto: it.proto, proto_zh: it.proto_zh,
+                       items: [] });
+      map.get(key).items.push(it);
+    }
+    return [...map.values()].sort((a,b) =>
+      a.unit_zh.localeCompare(b.unit_zh, "zh"));
+  }
+
+  function renderTree(m, filter=""){
+    const tree = document.getElementById("tree");
+    tree.innerHTML = "";
+    const f = filter.trim().toLowerCase();
+    const fac = m.factions.find(x => x.id === activeSide);
+    if (!fac) return;
+
+    // 搜索时跨所有阵营命中（不限当前标签）；无搜索词时仅显示当前阵营
+    const pool = f ? m.items : fac.items;
+    let matched = pool.filter(it =>
+      !f || (it.label + " " + it.name + " " + it.unit_zh + " " + it.unit_en +
+             " " + it.status_zh + " " + it.status_desc + " " + (SIDE_ZH[fac.id]||"") +
+             " " + (SIDE_ZH[it.side]||"")).toLowerCase().includes(f));
+
+    const units = groupByUnit(matched);
+    if (!units.length){
+      tree.innerHTML = '<div class="empty">' + (f ? "没有匹配的音效" : "该阵营下没有匹配的音效") + '</div>';
+      return;
+    }
+
+    units.forEach(u => {
+      const ug = document.createElement("div");
+      ug.className = "unit" + (f ? " open" : "");
+      const uh = document.createElement("div");
+      uh.className = "unit-head";
+      const badge = BADGE.badge(u.side, u.proto, { size: 38, label: u.unit_zh });
+      uh.innerHTML = `${badge}
+        <span class="utwist">${f ? "▾" : "▸"}</span>
+        <span class="uname"><span class="zh">${u.unit_zh}</span>`
+        + (u.unit_zh !== u.unit_en ? `<span class="en">${u.unit_en}</span>` : ``)
+        + `</span>
+        <span class="proto-tag">${u.proto_zh}</span>
+        <span class="ucnt">${u.items.length}</span>`;
+      uh.onclick = () => {
+        ug.classList.toggle("open");
+        uh.querySelector(".utwist").textContent = ug.classList.contains("open") ? "▾" : "▸";
+      };
+
+      const sdiv = document.createElement("div");
+      sdiv.className = "sounds";
+      u.items.forEach(it => {
+        const row = document.createElement("div");
+        row.className = "item";
+        row.dataset.file = it.file;
+        const fname = it.file.replace(/\.wav$/i, "");
+        row.innerHTML = `<span class="ico">♪</span>
+          <span class="lbl">${it.status_zh}
+            <span class="act">${it.action ? "("+it.action+")" : ""}</span>
+            <span class="fname">${fname}</span></span>
+          <span class="dur">${fmt(it.duration)}</span>`;
+        row.onclick = () => play(it, row);
+        sdiv.appendChild(row);
+      });
+      ug.appendChild(uh);
+      ug.appendChild(sdiv);
+      tree.appendChild(ug);
+    });
+  }
+
+  // ---------- 播放 ----------
+  function play(it, row){
+    currentItem = it;
+    document.querySelectorAll(".item.playing").forEach(e => e.classList.remove("playing"));
+    if (row) row.classList.add("playing");
+
+    audio.src = "sounds/" + it.file;
+    audio.volume = vol.value/100;
+    renderNow(it);
+    playBtn.disabled = false; seek.disabled = false;
+    audio.play();
+  }
+
+  function renderNow(it){
+    const body = document.getElementById("nowBody");
+    const badge = BADGE.badge(it.side, it.proto, { size: 64, label: it.unit_zh });
+    const enLine = it.unit_zh !== it.unit_en
+      ? `<div class="en">${it.unit_en}</div>` : "";
+    body.innerHTML = `
+      <span class="side-tag" style="border-color:${SIDE_COLORS[it.side]};color:${SIDE_COLORS[it.side]}">
+        ${it.side_zh}${it.proto_zh && it.proto_zh!=="其他" ? " · "+it.proto_zh : ""}</span>
+      ${badge}
+      <h2>${it.unit_zh}</h2>
+      ${enLine}
+      <div class="status-line">▸ 状态：${it.status_zh}${it.action ? "　<span style='color:var(--text-dim)'>[音效代码 "+it.action+"]</span>" : ""}</div>
+      <div class="status-desc">${it.status_desc}</div>
+      <div class="meta">
+        <span>文件：${it.file}</span>
+        <span>时长：${fmt(it.duration)}</span>
+        <span>采样：${it.sample_rate||"?"}Hz / ${it.channels||"?"}ch</span>
+        <span>阵营代码：${it.code}</span>
+      </div>`;
+  }
+
+  audio.onplay = () => {
+    playBtn.textContent = "❚❚";
+    ensureAudioGraph();
+    startViz();
+  };
+  audio.onpause = () => { playBtn.textContent = "▶"; stopViz(); };
+  audio.onended = () => { playBtn.textContent = "▶"; seek.value = 0; stopViz(); };
+  audio.ontimeupdate = () => {
+    if (audio.duration){
+      seek.value = Math.floor(audio.currentTime/audio.duration*1000);
+      timeEl.textContent = fmt(audio.currentTime) + " / " + fmt(audio.duration);
+    }
+  };
+  playBtn.onclick = () => { audio.paused ? audio.play() : audio.pause(); };
+  seek.oninput = () => {
+    if (audio.duration) audio.currentTime = seek.value/1000 * audio.duration;
+  };
+  vol.oninput = () => { audio.volume = vol.value/100; };
+
+  // ---------- WebAudio 可视化 ----------
+  function ensureAudioGraph(){
+    if (ctx) return;
+    ctx = new (window.AudioContext||window.webkitAudioContext)();
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    srcNode = ctx.createMediaElementSource(audio);
+    srcNode.connect(analyser);
+    analyser.connect(ctx.destination);
+  }
+  function startViz(){
+    if (!analyser) return;
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    const W = canvas.width = canvas.clientWidth;
+    const H = canvas.height = canvas.clientHeight;
+    function draw(){
+      rafId = requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(buf);
+      cctx.fillStyle = "#060906"; cctx.fillRect(0,0,W,H);
+      const bars = 64;
+      const bw = W/bars;
+      for (let i=0;i<bars;i++){
+        const v = buf[Math.floor(i/bars*buf.length)]/255;
+        const h = v*H;
+        const hue = 120 - v*120;
+        cctx.fillStyle = `hsl(${hue},70%,${30+v*30}%)`;
+        cctx.fillRect(i*bw, H-h, bw-1, h);
+      }
+      cctx.strokeStyle = "rgba(111,207,111,.2)";
+      cctx.beginPath(); cctx.moveTo(0,H/2); cctx.lineTo(W,H/2); cctx.stroke();
+    }
+    draw();
+  }
+  function stopViz(){
+    if (rafId) cancelAnimationFrame(rafId), rafId=null;
+    cctx.fillStyle = "#060906"; cctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // ---------- 状态图例 ----------
+  function renderLegend(){
+    const grid = document.getElementById("legendGrid");
+    const entries = [
+      ["选中", "点选单位时的应答"],
+      ["移动", "行军 / 移动"],
+      ["攻击", "开火 / 攻击"],
+      ["阵亡", "被摧毁"],
+      ["受击", "被火力命中"],
+      ["语音台词", "对白 / 台词"],
+      ["应答", "对指令的回应"],
+      ["嘲讽", "嘲讽敌人"],
+      ["循环音", "待机环境音"],
+      ["建造", "建造完成"],
+      ["开启/关闭", "通电 / 断电"],
+      ["传送", "超时空"],
+      ["心灵主宰", "精神控制"],
+      ["核弹", "核弹相关"],
+      ["过场", "战役简报"],
+    ];
+    grid.innerHTML = entries.map(([k,d]) =>
+      `<span class="lg" title="${d}">${k}</span>`).join("");
+  }
+
+  // ---------- 搜索 ----------
+  document.getElementById("search").addEventListener("input", e => {
+    renderTree(MANIFEST, e.target.value);
+  });
+  </script>
 </body>
-</html>
+</html>\n"}

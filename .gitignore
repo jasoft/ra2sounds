@@ -1,0 +1,22 @@
+# 红警2 / 尤里的复仇原版音效资源
+# 这些文件来自游戏版权内容，请勿上传。
+# 请使用 XCC Mixer 等工具从原版 .mix 中自行提取。
+sounds/
+extracted/
+extracted_units/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# macOS / IDE
+.DS_Store
+.workbuddy/
+.vscode/
+.idea/
+
+# 本地临时文件
+*.log

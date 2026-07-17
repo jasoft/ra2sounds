@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>RA2 音效标签核对 – 待确认项</title>
+<style>
+body{font-family:system-ui,-apple-system,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;line-height:1.55;background:#111;color:#eee}
+h1{font-size:22px;color:#f8d648}
+h2{font-size:16px;margin:20px 0 6px;color:#7ec0ee}
+.item{border:1px solid #444;border-radius:8px;padding:12px;margin:12px 0;background:#1a1a1a}
+.meta{color:#aaa;font-size:13px}
+.files{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+audio{height:28px;width:160px}
+.filetag{font-size:11px;color:#999;text-align:center;width:160px}
+.evidence{color:#9c9;font-size:12px;margin-top:6px}
+</style>
+</head>
+<body>
+<h1>RA2 音效标签核对页</h1>
+<p>下面这些分组已按原版 <code>soundmd.ini</code> + <code>rulesmd.ini</code>（CnCNet YR client package）初步给出标签，但属于<strong>废案单位、通用音效或命名有取舍</strong>的情况。请你试听并确认标签是否正确；不对的请告诉我正确兵种/标签。</p>
+<div class="item">
+<h2>宣传车（未采用） <span style="color:#aaa;font-weight:normal">(Propaganda Truck (cut))</span></h2>
+<div class="meta">代码： a+prot · 文件数： 5</div>
+<div class="evidence">依据： 原版 soundmd.ini 中 [PropagandaTruck] 已被 Westwood 注释掉（未采用单位）<br>相关事件： -</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/aprotr1.wav"></audio><div class="filetag">aprotr1</div></div>
+<div><audio controls preload="none" src="sounds/aprotr2.wav"></audio><div class="filetag">aprotr2</div></div>
+<div><audio controls preload="none" src="sounds/aprotr3.wav"></audio><div class="filetag">aprotr3</div></div>
+<div><audio controls preload="none" src="sounds/aprotr4.wav"></audio><div class="filetag">aprotr4</div></div>
+<div><audio controls preload="none" src="sounds/aprotr5.wav"></audio><div class="filetag">aprotr5</div></div>
+</div></div>
+<div class="item">
+<h2>海狼（未采用） <span style="color:#aaa;font-weight:normal">(Seawolf (cut))</span></h2>
+<div class="meta">代码： v+sea · 文件数： 4</div>
+<div class="evidence">依据： 原版 soundmd.ini 中有 [SeawolfMoveStart]，但 rulesmd.ini 中海狼单位被注释<br>相关事件： SeawolfMoveStart</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vseastaa.wav"></audio><div class="filetag">vseastaa</div></div>
+<div><audio controls preload="none" src="sounds/vseastab.wav"></audio><div class="filetag">vseastab</div></div>
+<div><audio controls preload="none" src="sounds/vseastac.wav"></audio><div class="filetag">vseastac</div></div>
+<div><audio controls preload="none" src="sounds/vseastad.wav"></audio><div class="filetag">vseastad</div></div>
+</div></div>
+<div class="item">
+<h2>装甲运输（攻击音效） <span style="color:#aaa;font-weight:normal">(Armored Transport)</span></h2>
+<div class="meta">代码： v+arm · 文件数： 2</div>
+<div class="evidence">依据： [ArmoredTransportAttack]，没有单位引用该语音事件<br>相关事件： ArmoredTransportAttack</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/varmatta.wav"></audio><div class="filetag">varmatta</div></div>
+<div><audio controls preload="none" src="sounds/varmattb.wav"></audio><div class="filetag">varmattb</div></div>
+</div></div>
+<div class="item">
+<h2>游轮 <span style="color:#aaa;font-weight:normal">(Cruise Ship)</span></h2>
+<div class="meta">代码： v+acc · 文件数： 2</div>
+<div class="evidence">依据： [ACCMoveStart]，被 CruiseShip 使用；"ACC" 缩写含义不明<br>相关事件： ACCMoveStart</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vaccstaa.wav"></audio><div class="filetag">vaccstaa</div></div>
+<div><audio controls preload="none" src="sounds/vaccstab.wav"></audio><div class="filetag">vaccstab</div></div>
+</div></div>
+<div class="item">
+<h2>两栖运输艇（启动） <span style="color:#aaa;font-weight:normal">(Landing Craft Start)</span></h2>
+<div class="meta">代码： v+lan · 文件数： 3</div>
+<div class="evidence">依据： [LandingCraftMoveStart]，两栖运输艇的启动音效<br>相关事件： LandingCraftMoveStart</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vlanstaa.wav"></audio><div class="filetag">vlanstaa</div></div>
+<div><audio controls preload="none" src="sounds/vlanstab.wav"></audio><div class="filetag">vlanstab</div></div>
+<div><audio controls preload="none" src="sounds/vlanstac.wav"></audio><div class="filetag">vlanstac</div></div>
+</div></div>
+<div class="item">
+<h2>海军上浮（音效） <span style="color:#aaa;font-weight:normal">(Naval Unit Emerge)</span></h2>
+<div class="meta">代码： v+nav · 文件数： 1</div>
+<div class="evidence">依据： [NavalUnitEmerge] / [TanyaLeavesWater]，通用海军上浮音效<br>相关事件： NavalUnitEmerge, TanyaLeavesWater</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vnavupa.wav"></audio><div class="filetag">vnavupa</div></div>
+</div></div>
+<div class="item">
+<h2>采矿（音效） <span style="color:#aaa;font-weight:normal">(Ore Truck Harvest)</span></h2>
+<div class="meta">代码： v+orehar · 文件数： 1</div>
+<div class="evidence">依据： [OreTruckHarvest]，通用采矿音效<br>相关事件： OreTruckHarvest</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vorehara.wav"></audio><div class="filetag">vorehara</div></div>
+</div></div>
+<div class="item">
+<h2>基地车（启动音效） <span style="color:#aaa;font-weight:normal">(MCV Move Start)</span></h2>
+<div class="meta">代码： v+mcvst · 文件数： 1</div>
+<div class="evidence">依据： [MCVMoveStart]，也被民用卡车/出租车/巴士引用<br>相关事件： MCVMoveStart</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vmcvstaa.wav"></audio><div class="filetag">vmcvstaa</div></div>
+</div></div>
+<div class="item">
+<h2>民用车（启动） <span style="color:#aaa;font-weight:normal">(Civilian Car Start)</span></h2>
+<div class="meta">代码： v+cabst · 文件数： 1</div>
+<div class="evidence">依据： [GenCarMoveStart]，民用车启动音效<br>相关事件： GenCarMoveStart</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vcabstaa.wav"></audio><div class="filetag">vcabstaa</div></div>
+</div></div>
+<div class="item">
+<h2>警车（警笛循环） <span style="color:#aaa;font-weight:normal">(Police Siren Loop)</span></h2>
+<div class="meta">代码： v+coplo · 文件数： 3</div>
+<div class="evidence">依据： [PoliceSirenLoop]，警车警笛循环<br>相关事件： PoliceSirenLoop</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vcoplo1.wav"></audio><div class="filetag">vcoplo1</div></div>
+<div><audio controls preload="none" src="sounds/vcoplo2a.wav"></audio><div class="filetag">vcoplo2a</div></div>
+<div><audio controls preload="none" src="sounds/vcoplo2b.wav"></audio><div class="filetag">vcoplo2b</div></div>
+</div></div>
+<div class="item">
+<h2>Tank Crush <span style="color:#aaa;font-weight:normal">(Tank Crush)</span></h2>
+<div class="meta">代码： v+crush · 文件数： 1</div>
+<div class="evidence">依据： [TankCrush]，坦克碾压音效（按你的要求保留英文）<br>相关事件： TankCrush</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vcrusha.wav"></audio><div class="filetag">vcrusha</div></div>
+</div></div>
+<div class="item">
+<h2>侦察机 <span style="color:#aaa;font-weight:normal">(Spy Plane)</span></h2>
+<div class="meta">代码： v+spy · 文件数： 5</div>
+<div class="evidence">依据： [SpyPlaneMoveLoop] / [SpyPlaneDie]，侦察机相关<br>相关事件： SpyPlaneDie, SpyPlaneMoveLoop, SpyPlaneSnapShot</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vspylo2a.wav"></audio><div class="filetag">vspylo2a</div></div>
+<div><audio controls preload="none" src="sounds/vspylo2b.wav"></audio><div class="filetag">vspylo2b</div></div>
+<div><audio controls preload="none" src="sounds/vspylo2c.wav"></audio><div class="filetag">vspylo2c</div></div>
+<div><audio controls preload="none" src="sounds/vspylo3a.wav"></audio><div class="filetag">vspylo3a</div></div>
+<div><audio controls preload="none" src="sounds/vspysnap.wav"></audio><div class="filetag">vspysnap</div></div>
+</div></div>
+<div class="item">
+<h2>缆车 <span style="color:#aaa;font-weight:normal">(Cable Car)</span></h2>
+<div class="meta">代码： v+tro · 文件数： 2</div>
+<div class="evidence">依据： [CableCarSelect]，缆车选择音效<br>相关事件： CableCarSelect</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/vtrosela.wav"></audio><div class="filetag">vtrosela</div></div>
+<div><audio controls preload="none" src="sounds/vtroselb.wav"></audio><div class="filetag">vtroselb</div></div>
+</div></div>
+<div class="item">
+<h2>超时空传送（特效） <span style="color:#aaa;font-weight:normal">(Chrono Screen Effect)</span></h2>
+<div class="meta">代码： g+times · 文件数： 2</div>
+<div class="evidence">依据： [ChronoScreenSound]，超时空传送屏幕特效<br>相关事件： ChronoScreenSound, ChronoScreenSoundAgain</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/gtimesh2.wav"></audio><div class="filetag">gtimesh2</div></div>
+<div><audio controls preload="none" src="sounds/gtimeshi.wav"></audio><div class="filetag">gtimeshi</div></div>
+</div></div>
+<div class="item">
+<h2>落水沉没 <span style="color:#aaa;font-weight:normal">(Water Die)</span></h2>
+<div class="meta">代码： g+navsin · 文件数： 1</div>
+<div class="evidence">依据： [GenSmallWaterDie] / [GenLargeWaterDie]，落水/沉没音效<br>相关事件： GenLargeWaterDie, GenSmallWaterDie</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/gnavsina.wav"></audio><div class="filetag">gnavsina</div></div>
+</div></div>
+<div class="item">
+<h2>病毒受害者（爆裂） <span style="color:#aaa;font-weight:normal">(Virus Victim Explode)</span></h2>
+<div class="meta">代码： g+virex · 文件数： 2</div>
+<div class="evidence">依据： [VirusVictimSwell] / [VirusVictimExplode]，病毒武器受害者<br>相关事件： VirusVictimExplode, VirusVictimSwell</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/gvirexpa.wav"></audio><div class="filetag">gvirexpa</div></div>
+<div><audio controls preload="none" src="sounds/gvirexpb.wav"></audio><div class="filetag">gvirexpb</div></div>
+</div></div>
+<div class="item">
+<h2>围墙压碎 <span style="color:#aaa;font-weight:normal">(Wall Crush)</span></h2>
+<div class="meta">代码： g+blacru · 文件数： 2</div>
+<div class="evidence">依据： [WallCrushWhite] / [WallCrushBlack]，围墙/墙体压碎<br>相关事件： WallCrushBlack, WallCrushWhite</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/gblacrua.wav"></audio><div class="filetag">gblacrua</div></div>
+<div><audio controls preload="none" src="sounds/gblacrub.wav"></audio><div class="filetag">gblacrub</div></div>
+</div></div>
+<div class="item">
+<h2>围墙压碎 <span style="color:#aaa;font-weight:normal">(Wall Crush)</span></h2>
+<div class="meta">代码： g+sancru · 文件数： 2</div>
+<div class="evidence">依据： [WallCrushKremlin] / [WallCrushSandbag]，围墙/墙体压碎<br>相关事件： WallCrushKremlin, WallCrushSandbag</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/gsancrua.wav"></audio><div class="filetag">gsancrua</div></div>
+<div><audio controls preload="none" src="sounds/gsancrub.wav"></audio><div class="filetag">gsancrub</div></div>
+</div></div>
+<div class="item">
+<h2>喷泉（循环） <span style="color:#aaa;font-weight:normal">(Fountain Loop)</span></h2>
+<div class="meta">代码： g+foulo · 文件数： 3</div>
+<div class="evidence">依据： [FountainLoop]，喷泉循环<br>相关事件： FountainLoop</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/gfoulo1a.wav"></audio><div class="filetag">gfoulo1a</div></div>
+<div><audio controls preload="none" src="sounds/gfoulo1b.wav"></audio><div class="filetag">gfoulo1b</div></div>
+<div><audio controls preload="none" src="sounds/gfoulo1c.wav"></audio><div class="filetag">gfoulo1c</div></div>
+</div></div>
+<div class="item">
+<h2>心灵控制解除 <span style="color:#aaa;font-weight:normal">(Mind Cleared)</span></h2>
+<div class="meta">代码： g+mindcle · 文件数： 1</div>
+<div class="evidence">依据： [MindCleared]，心灵控制解除<br>相关事件： MindCleared</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/gmindcle.wav"></audio><div class="filetag">gmindcle</div></div>
+</div></div>
+<div class="item">
+<h2>钻矿（音效） <span style="color:#aaa;font-weight:normal">(Ore Mine Extract)</span></h2>
+<div class="meta">代码： g+ore · 文件数： 1</div>
+<div class="evidence">依据： [OreMineExtract]，钻矿/采矿音效<br>相关事件： OreMineExtract</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/goreupa.wav"></audio><div class="filetag">goreupa</div></div>
+</div></div>
+<div class="item">
+<h2>建造栏（开合） <span style="color:#aaa;font-weight:normal">(Sidebar Tab)</span></h2>
+<div class="meta">代码： u+acb · 文件数： 1</div>
+<div class="evidence">依据： [MenuACBOpen] / [MenuACBClose]，"ACB" 具体含义不明<br>相关事件： MenuACBClose, MenuACBOpen</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/uacbopen.wav"></audio><div class="filetag">uacbopen</div></div>
+</div></div>
+<div class="item">
+<h2>过场电影（开/关） <span style="color:#aaa;font-weight:normal">(Movie On/Off)</span></h2>
+<div class="meta">代码： u+movlo · 文件数： 8</div>
+<div class="evidence">依据： [MovieOn] / [MovieOff]，过场电影开关<br>相关事件： MovieOff, MovieOn</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/umovlo1a.wav"></audio><div class="filetag">umovlo1a</div></div>
+<div><audio controls preload="none" src="sounds/umovlo1b.wav"></audio><div class="filetag">umovlo1b</div></div>
+<div><audio controls preload="none" src="sounds/umovlo2a.wav"></audio><div class="filetag">umovlo2a</div></div>
+<div><audio controls preload="none" src="sounds/umovlo2b.wav"></audio><div class="filetag">umovlo2b</div></div>
+<div><audio controls preload="none" src="sounds/umovlo2c.wav"></audio><div class="filetag">umovlo2c</div></div>
+<div><audio controls preload="none" src="sounds/umovlo3a.wav"></audio><div class="filetag">umovlo3a</div></div>
+<div><audio controls preload="none" src="sounds/umovlo3b.wav"></audio><div class="filetag">umovlo3b</div></div>
+<div><audio controls preload="none" src="sounds/umovlo3c.wav"></audio><div class="filetag">umovlo3c</div></div>
+</div></div>
+<div class="item">
+<h2>伦敦平民（战役） <span style="color:#aaa;font-weight:normal">(London Civilians)</span></h2>
+<div class="meta">代码： x+s3c · 文件数： 12</div>
+<div class="evidence">依据： [LCiv1/2/3Select] / [_Amb_LondonCivilians]，伦敦战役平民语音<br>相关事件： LCiv1Select, LCiv2Select, LCiv3Select, LCiv4Select, _Amb_LondonCivilians</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/xs3c101.wav"></audio><div class="filetag">xs3c101</div></div>
+<div><audio controls preload="none" src="sounds/xs3c102.wav"></audio><div class="filetag">xs3c102</div></div>
+<div><audio controls preload="none" src="sounds/xs3c103.wav"></audio><div class="filetag">xs3c103</div></div>
+<div><audio controls preload="none" src="sounds/xs3c201.wav"></audio><div class="filetag">xs3c201</div></div>
+<div><audio controls preload="none" src="sounds/xs3c202.wav"></audio><div class="filetag">xs3c202</div></div>
+<div><audio controls preload="none" src="sounds/xs3c203.wav"></audio><div class="filetag">xs3c203</div></div>
+<div><audio controls preload="none" src="sounds/xs3c301.wav"></audio><div class="filetag">xs3c301</div></div>
+<div><audio controls preload="none" src="sounds/xs3c302.wav"></audio><div class="filetag">xs3c302</div></div>
+<div class="filetag" style="align-self:center">+4 个…</div>
+</div></div>
+<div class="item">
+<h2>测试音效 <span style="color:#aaa;font-weight:normal">(Test Sound 1)</span></h2>
+<div class="meta">代码： t+s1 · 文件数： 1</div>
+<div class="evidence">依据： [Test1..Test10]，开发/测试用音效<br>相关事件： Test1, TestEffect, TestEnvelope, TestEnvelopeFShift, TestLoopAll, TestRandom, TestRandomLoopAll, TestRandomLoopDelayAll</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/ts1.wav"></audio><div class="filetag">ts1</div></div>
+</div></div>
+<div class="item">
+<h2>战役剧情语音 <span style="color:#aaa;font-weight:normal">(Cinematic EVA)</span></h2>
+<div class="meta">代码： c+eva · 文件数： 1</div>
+<div class="evidence">依据： 无 soundmd.ini 引用，为战役剧情/EVA 音频<br>相关事件： -</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/ceva014.wav"></audio><div class="filetag">ceva014</div></div>
+</div></div>
+<div class="item">
+<h2>超能力部队（心灵突击队） <span style="color:#aaa;font-weight:normal">(Psi-Corps / Psi Commando)</span></h2>
+<div class="meta">代码： i+yur · 文件数： 19</div>
+<div class="evidence">依据： RA2 中为超能力部队，YR 中为心灵突击队（偷科技单位），命名取舍<br>相关事件： YuriAttackCommand, YuriDeploy, YuriDie, YuriMindControl, YuriMove, YuriSelect</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/iyurat1a.wav"></audio><div class="filetag">iyurat1a</div></div>
+<div><audio controls preload="none" src="sounds/iyurat2a.wav"></audio><div class="filetag">iyurat2a</div></div>
+<div><audio controls preload="none" src="sounds/iyurata.wav"></audio><div class="filetag">iyurata</div></div>
+<div><audio controls preload="none" src="sounds/iyuratb.wav"></audio><div class="filetag">iyuratb</div></div>
+<div><audio controls preload="none" src="sounds/iyuratc.wav"></audio><div class="filetag">iyuratc</div></div>
+<div><audio controls preload="none" src="sounds/iyuratd.wav"></audio><div class="filetag">iyuratd</div></div>
+<div><audio controls preload="none" src="sounds/iyurate.wav"></audio><div class="filetag">iyurate</div></div>
+<div><audio controls preload="none" src="sounds/iyurdia.wav"></audio><div class="filetag">iyurdia</div></div>
+<div class="filetag" style="align-self:center">+11 个…</div>
+</div></div>
+<div class="item">
+<h2>奴隶矿工（获救） <span style="color:#aaa;font-weight:normal">(Slave Freed)</span></h2>
+<div class="meta">代码： i+sl2 · 文件数： 25</div>
+<div class="evidence">依据： [SlaveFreed*]，与 sl1 奴隶矿工对应，标签取为"奴隶矿工（获救）"<br>相关事件： SlaveFreedAttackCommand, SlaveFreedDie, SlaveFreedFear, SlaveFreedMove, SlaveWorkerDie, SlaveWorkerFear</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/isl2ata.wav"></audio><div class="filetag">isl2ata</div></div>
+<div><audio controls preload="none" src="sounds/isl2atb.wav"></audio><div class="filetag">isl2atb</div></div>
+<div><audio controls preload="none" src="sounds/isl2atc.wav"></audio><div class="filetag">isl2atc</div></div>
+<div><audio controls preload="none" src="sounds/isl2atd.wav"></audio><div class="filetag">isl2atd</div></div>
+<div><audio controls preload="none" src="sounds/isl2ate.wav"></audio><div class="filetag">isl2ate</div></div>
+<div><audio controls preload="none" src="sounds/isl2dia.wav"></audio><div class="filetag">isl2dia</div></div>
+<div><audio controls preload="none" src="sounds/isl2dib.wav"></audio><div class="filetag">isl2dib</div></div>
+<div><audio controls preload="none" src="sounds/isl2dic.wav"></audio><div class="filetag">isl2dic</div></div>
+<div class="filetag" style="align-self:center">+17 个…</div>
+</div></div>
+<div class="item">
+<h2>平民（胖） <span style="color:#aaa;font-weight:normal">(Civilian (Fat))</span></h2>
+<div class="meta">代码： i+civ1 · 文件数： 3</div>
+<div class="evidence">依据： [CivFatDie]，按体型标记为"平民（胖）"<br>相关事件： CivFatDie</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/iciv1dia.wav"></audio><div class="filetag">iciv1dia</div></div>
+<div><audio controls preload="none" src="sounds/iciv1dib.wav"></audio><div class="filetag">iciv1dib</div></div>
+<div><audio controls preload="none" src="sounds/iciv1dic.wav"></audio><div class="filetag">iciv1dic</div></div>
+</div></div>
+<div class="item">
+<h2>平民（瘦） <span style="color:#aaa;font-weight:normal">(Civilian (Thin))</span></h2>
+<div class="meta">代码： i+civ2 · 文件数： 4</div>
+<div class="evidence">依据： [CivThinDie]，按体型标记为"平民（瘦）"<br>相关事件： CivThinDie</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/iciv2dia.wav"></audio><div class="filetag">iciv2dia</div></div>
+<div><audio controls preload="none" src="sounds/iciv2dib.wav"></audio><div class="filetag">iciv2dib</div></div>
+<div><audio controls preload="none" src="sounds/iciv2dic.wav"></audio><div class="filetag">iciv2dic</div></div>
+<div><audio controls preload="none" src="sounds/iciv2did.wav"></audio><div class="filetag">iciv2did</div></div>
+</div></div>
+<div class="item">
+<h2>街道交通 <span style="color:#aaa;font-weight:normal">(Traffic)</span></h2>
+<div class="meta">代码： a+tra · 文件数： 6</div>
+<div class="evidence">依据： 原表标为"树"，实际事件为 [_Amb_Traffic]，改为"街道交通"<br>相关事件： _Amb_Traffic</div>
+<div class="files">
+<div><audio controls preload="none" src="sounds/atra01a.wav"></audio><div class="filetag">atra01a</div></div>
+<div><audio controls preload="none" src="sounds/atra01b.wav"></audio><div class="filetag">atra01b</div></div>
+<div><audio controls preload="none" src="sounds/atra01c.wav"></audio><div class="filetag">atra01c</div></div>
+<div><audio controls preload="none" src="sounds/atra01d.wav"></audio><div class="filetag">atra01d</div></div>
+<div><audio controls preload="none" src="sounds/atra01e.wav"></audio><div class="filetag">atra01e</div></div>
+<div><audio controls preload="none" src="sounds/atra01f.wav"></audio><div class="filetag">atra01f</div></div>
+</div></div>
+</body>
+</html>
