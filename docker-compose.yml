@@ -1,0 +1,17 @@
+services:
+  ra2sounds:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ra2sounds
+    restart: unless-stopped
+    ports:
+      - "40402:80"
+    volumes:
+      - notes_db:/opt/ra2sounds/data
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_PATH=/opt/ra2sounds/data/notes.db
+
+volumes:
+  notes_db:
