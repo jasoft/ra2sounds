@@ -359,11 +359,11 @@
       },
 
       async loadNote(file) {
+        // 只清空内容和状态，不提前重置 editable——避免 placeholder 在 fetch 期间闪烁
         this.text = "";
         this.original = "";
         this.status = "";
         this.msg = "";
-        this.editable = false;
         try {
           const r = await fetch("api/notes?file=" + encodeURIComponent(file));
           const d = await r.json();
