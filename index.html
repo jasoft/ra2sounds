@@ -120,6 +120,13 @@
   .item .lbl .act { color: var(--amber); font-size: 11px; margin-left: 6px; }
   .item .lbl .fname { color: var(--text-dim); font-size: 10px; margin-left: 6px; }
   .item .dur { color: var(--text-dim); font-size: 11px; }
+  /* 已备注音效：左侧高亮 + 铅笔图标 */
+  .item.noted { background: #1c241a; border-color: rgba(232,178,76,.35); }
+  .item.noted:hover { background: #232b1f; border-color: rgba(232,178,76,.5); }
+  .item.noted.playing { background: #1b3320; border-color: var(--green); }
+  .item .notemark { display: none; color: var(--amber); font-size: 12px; width: 14px; text-align: center; flex-shrink: 0; }
+  .item.noted .notemark { display: inline; }
+  .item.noted .ico { color: var(--amber); }
 
   /* ---------------- 右侧内容区 ---------------- */
   #content {
@@ -318,6 +325,7 @@
   const SIDE_COLORS = { soviet:"#e0483f", allied:"#3f93e0", yuri:"#a05fd0", other:"#b0a589" };
 
   let MANIFEST = { factions: [], items: [] };
+  let NOTED = new Set();   // 已备注音效的 file 集合（用于列表标记）
   let audio = document.getElementById("audio");
   let ctx = null, analyser = null, srcNode = null, rafId = null;
   const playBtn = document.getElementById("playBtn");
@@ -436,6 +444,12 @@
     renderLegend();
     document.getElementById("stat").textContent =
       `共 ${m.total} 个音效 · 4 大阵营`;
+    // 拉取已备注清单，用于列表标记
+    return fetch("api/notes/list").then(r => r.json()).then(d => {
+      NOTED = new Set(d.files || []);
+      // 清单到手后重渲染列表，让已备注标记生效
+      renderTree(MANIFEST, document.getElementById("search").value);
+    }).catch(() => {});
   }).catch(e => {
     document.getElementById("tree").innerHTML =
       '<div class="empty">无法加载 sounds.json：' + e + '</div>';
@@ -521,13 +535,14 @@
       sdiv.className = "sounds";
       u.items.forEach(it => {
         const row = document.createElement("div");
-        row.className = "item";
+        row.className = "item" + (NOTED.has(it.file) ? " noted" : "");
         row.dataset.file = it.file;
         const fname = it.file.replace(/\.wav$/i, "");
         row.innerHTML = `<span class="ico">♪</span>
           <span class="lbl">${it.status_zh}
             <span class="act">${it.action ? "("+it.action+")" : ""}</span>
             <span class="fname">${fname}</span></span>
+          <span class="notemark" title="已有备注">✎</span>
           <span class="dur">${fmt(it.duration)}</span>`;
         row.onclick = () => play(it, row);
         sdiv.appendChild(row);

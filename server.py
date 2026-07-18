@@ -126,7 +126,16 @@ class Handler(SimpleHTTPRequestHandler):
         qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
         files = qs.get("file")
         if not files:
-            return self._send_json(200, {"editable": editable})
+            # 无 file 参数：返回所有「有内容」的备注文件清单，
+            # 供前端在音效列表上标记哪些是已备注的。
+            with self._db() as conn:
+                rows = conn.execute(
+                    "SELECT file FROM notes WHERE note IS NOT NULL AND note != ''"
+                ).fetchall()
+            return self._send_json(200, {
+                "editable": editable,
+                "files": [r[0] for r in rows],
+            })
         file = files[0]
         with self._db() as conn:
             row = conn.execute(
