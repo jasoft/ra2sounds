@@ -26,6 +26,13 @@ notes.db
 notes.db-journal
 notes.db-wal
 notes.db-shm
+notes.db.bak
+
+# whisper 本地模型（下载产生，非源码）
+models/
+
+# 语音扫描中间产物（可复现，体积大）
+voice_scan.json
 
 # Node modules
 node_modules/
