@@ -164,39 +164,40 @@
   #note {
     width: min(680px, 100%); margin-top: 4px;
     background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
-    padding: 12px 14px; text-align: left;
+    padding: 14px 16px; text-align: left;
   }
   #note .note-head {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
   }
   #note .note-title {
-    font-size: 12px; color: var(--text-dim); letter-spacing: 1px;
+    font-size: 14px; color: var(--text-dim); letter-spacing: 1px;
   }
   #note .note-flag {
-    font-size: 10px; padding: 2px 8px; border-radius: 8px; margin-left: auto;
+    font-size: 11px; padding: 2px 10px; border-radius: 8px; margin-left: auto;
     border: 1px solid var(--line); color: var(--text-dim); white-space: nowrap;
   }
   #note.editable .note-flag { color: var(--green); border-color: var(--green-dim); }
+  #note .note-flag.note-flag-editable { color: var(--green); border-color: var(--green-dim); }
   #note .note-text {
-    width: 100%; min-height: 64px; resize: vertical;
+    width: 100%; min-height: 80px; resize: vertical;
     background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
-    color: var(--text); font-family: inherit; font-size: 13px; line-height: 1.6;
-    padding: 8px 10px;
+    color: var(--text); font-family: inherit; font-size: 16px; line-height: 1.8;
+    padding: 10px 12px;
   }
   #note .note-text:focus { outline: none; border-color: var(--green); }
   #note .note-bar {
-    display: flex; align-items: center; gap: 10px; margin-top: 8px;
+    display: flex; align-items: center; gap: 12px; margin-top: 10px;
   }
   #note .note-save {
     background: var(--panel2); border: 1px solid var(--green-dim);
-    color: var(--green); font-family: inherit; font-size: 13px;
-    padding: 6px 16px; border-radius: 4px; cursor: pointer; transition: .15s;
+    color: var(--green); font-family: inherit; font-size: 14px;
+    padding: 8px 20px; border-radius: 4px; cursor: pointer; transition: .15s;
   }
   #note .note-save:hover { background: var(--green); color: #060906; }
   #note .note-save:disabled { opacity: .4; cursor: default; }
   #note .note-save:disabled:hover { background: var(--panel2); color: var(--green); }
-  #note .note-status { font-size: 11px; color: var(--text-dim); }
-  #note .note-msg { font-size: 11px; color: var(--amber); margin-left: auto; }
+  #note .note-status { font-size: 14px; color: var(--text-dim); }
+  #note .note-msg { font-size: 14px; color: var(--amber); margin-left: auto; }
   #note.readonly .note-text { color: var(--text-dim); }
 
   #viz {
@@ -269,17 +270,27 @@
         </div>
       </div>
 
-      <div id="note" class="readonly">
+      <div id="note" class="readonly"
+           x-data="noteApp()"
+           x-init="init()">
         <div class="note-head">
           <span class="note-title">📝 音效备注</span>
-          <span class="note-flag" id="noteFlag">只读</span>
+          <span class="note-flag" id="noteFlag" x-text="editable ? '可编辑' : '只读'"
+                :class="editable ? 'note-flag-editable' : ''">只读</span>
         </div>
         <textarea class="note-text" id="noteText"
-          placeholder="点选一个音效后，可在此添加备注（仅局域网用户可保存）"></textarea>
+          x-model="text"
+          :readonly="!editable"
+          :placeholder="editable ? '为这条音效写点备注吧…' : '只读模式：仅局域网 / 本机客户端可编辑备注'"
+          placeholder="点选一个音效后，可在此添加备注（仅局域网用户可保存）"
+          @keydown.ctrl.enter.prevent="saveNote()"
+          @keydown.meta.enter.prevent="saveNote()"></textarea>
         <div class="note-bar">
-          <button class="note-save" id="noteSave" disabled>保存备注</button>
-          <span class="note-status" id="noteStatus"></span>
-          <span class="note-msg" id="noteMsg"></span>
+          <button class="note-save" id="noteSave"
+                  :disabled="!editable || !dirty"
+                  @click="saveNote()">保存备注</button>
+          <span class="note-status" id="noteStatus" x-text="status"></span>
+          <span class="note-msg" id="noteMsg" x-text="msg"></span>
         </div>
       </div>
 
@@ -300,6 +311,7 @@
   </main>
 
   <audio id="audio" preload="metadata"></audio>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="badges.js"></script>
   <script>
   const SIDE_ZH = { soviet:"苏军", allied:"盟军", yuri:"尤里", other:"系统 / 环境" };
@@ -317,13 +329,8 @@
   let currentItem = null;
   let activeSide = "allied";
 
-  // 备注区元素
+  // 备注区元素（保留对非Alpine代码的引用）
   const noteBox = document.getElementById("note");
-  const noteText = document.getElementById("noteText");
-  const noteSave = document.getElementById("noteSave");
-  const noteFlag = document.getElementById("noteFlag");
-  const noteStatus = document.getElementById("noteStatus");
-  const noteMsg = document.getElementById("noteMsg");
 
   function fmt(sec){
     if (sec == null || isNaN(sec)) return "0:00";
@@ -331,6 +338,96 @@
     const m = Math.floor(sec/60), s = sec%60;
     return m + ":" + String(s).padStart(2,"0");
   }
+
+  // ---------- Alpine.js 备注组件 ----------
+  // 需要在 Alpine 初始化前注册（defer加载时Alpine会自己扫描）
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("noteApp", () => ({
+      text: "",
+      original: "",
+      editable: false,
+      status: "",
+      msg: "",
+
+      get dirty() {
+        return this.text !== this.original;
+      },
+
+      init() {
+        // 将 Alpine 实例暴露给外部 JS 使用
+        window._noteAlpine = this;
+      },
+
+      async loadNote(file) {
+        this.text = "";
+        this.original = "";
+        this.status = "";
+        this.msg = "";
+        this.editable = false;
+        try {
+          const r = await fetch("api/notes?file=" + encodeURIComponent(file));
+          const d = await r.json();
+          this.original = d.note || "";
+          this.text = d.note || "";
+          this.editable = !!d.editable;
+          if (d.updated_at)
+            this.status = "最后更新：" + d.updated_at.replace("T", " ");
+          // 同步到 #note 的 class（保持旧CSS效果）
+          noteBox.classList.toggle("editable", this.editable);
+          noteBox.classList.toggle("readonly", !this.editable);
+        } catch {
+          this.editable = false;
+          this.msg = "备注加载失败";
+          noteBox.classList.remove("editable");
+          noteBox.classList.add("readonly");
+        }
+      },
+
+      async saveNote() {
+        if (!this.editable || !this.dirty) return;
+        const file = currentItem && currentItem.file;
+        if (!file) return;
+        this.msg = "保存中…";
+        try {
+          const r = await fetch("api/notes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ file, note: this.text })
+          });
+          const d = await r.json();
+          if (r.ok) {
+            this.original = this.text;
+            this.msg = "";
+            if (d.updated_at)
+              this.status = "最后更新：" + d.updated_at.replace("T", " ");
+          } else {
+            this.msg = d.error || "保存失败";
+          }
+        } catch {
+          this.msg = "保存失败";
+        }
+      },
+
+      // 静默保存（切换音效时自动触发）
+      async autoSave() {
+        if (!this.editable || !this.dirty) return;
+        const file = currentItem && currentItem.file;
+        if (!file) return;
+        try {
+          const r = await fetch("api/notes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ file, note: this.text })
+          });
+          const d = await r.json();
+          if (r.ok && d.updated_at) {
+            this.original = this.text;
+            this.status = "最后更新：" + d.updated_at.replace("T", " ");
+          }
+        } catch {}
+      }
+    }));
+  });
 
   // ---------- 加载编目 ----------
   fetch("sounds.json").then(r => r.json()).then(m => {
@@ -443,6 +540,9 @@
 
   // ---------- 播放 ----------
   function play(it, row){
+    // 切换音效前，自动保存当前未保存的备注
+    if (window._noteAlpine) window._noteAlpine.autoSave();
+
     currentItem = it;
     document.querySelectorAll(".item.playing").forEach(e => e.classList.remove("playing"));
     if (row) row.classList.add("playing");
@@ -473,67 +573,8 @@
         <span>采样：${it.sample_rate||"?"}Hz / ${it.channels||"?"}ch</span>
         <span>阵营代码：${it.code}</span>
       </div>`;
-    loadNote(it.file);
-  }
-
-  // ---------- 音效备注 ----------
-  function setNoteMode(editable){
-    noteBox.classList.toggle("editable", editable);
-    noteBox.classList.toggle("readonly", !editable);
-    noteFlag.textContent = editable ? "可编辑" : "只读";
-    noteSave.disabled = !editable;
-    noteText.readOnly = !editable;
-    noteText.placeholder = editable
-      ? "为这条音效写点备注吧…"
-      : "只读模式：仅局域网 / 本机客户端可编辑备注";
-  }
-
-  function loadNote(file){
-    noteText.value = "";
-    noteStatus.textContent = "";
-    noteMsg.textContent = "";
-    fetch("api/notes?file=" + encodeURIComponent(file))
-      .then(r => r.json())
-      .then(d => {
-        setNoteMode(!!d.editable);
-        noteText.value = d.note || "";
-        if (d.updated_at)
-          noteStatus.textContent = "最后更新：" + d.updated_at.replace("T", " ");
-      })
-      .catch(() => {
-        setNoteMode(false);
-        noteMsg.textContent = "备注加载失败";
-      });
-  }
-
-  function saveNote(){
-    if (noteSave.disabled) return;
-    const file = currentItem && currentItem.file;
-    if (!file) return;
-    noteSave.disabled = true;
-    noteMsg.textContent = "保存中…";
-    fetch("api/notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ file: file, note: noteText.value })
-    })
-      .then(r => r.json().then(d => ({ ok: r.ok, d })))
-      .then(({ ok, d }) => {
-        if (ok){
-          noteMsg.textContent = "";
-          noteStatus.textContent = "最后更新：" + (d.updated_at||"").replace("T", " ");
-        } else {
-          noteMsg.textContent = d.error || "保存失败";
-        }
-      })
-      .catch(() => { noteMsg.textContent = "保存失败"; })
-      .finally(() => {
-        // 写接口可能返回 403（非局域网），据此刷新可编辑状态
-        fetch("api/notes?file=" + encodeURIComponent(file))
-          .then(r => r.json())
-          .then(d => setNoteMode(!!d.editable))
-          .catch(() => {});
-      });
+    // 用 Alpine 加载备注
+    if (window._noteAlpine) window._noteAlpine.loadNote(it.file);
   }
 
   audio.onplay = () => {
@@ -554,11 +595,6 @@
     if (audio.duration) audio.currentTime = seek.value/1000 * audio.duration;
   };
   vol.oninput = () => { audio.volume = vol.value/100; };
-
-  noteSave.onclick = saveNote;
-  noteText.addEventListener("keydown", e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter"){ e.preventDefault(); saveNote(); }
-  });
 
   // ---------- WebAudio 可视化 ----------
   function ensureAudioGraph(){
