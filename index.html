@@ -363,28 +363,28 @@
       },
 
       async loadNote(file) {
-        // 只清空内容和状态，不提前重置 editable——避免 placeholder 在 fetch 期间闪烁
-        this.text = "";
-        this.original = "";
-        this.status = "";
-        this.msg = "";
+        // 先拉取数据，填充后再一次性更新 DOM——避免 textarea 闪现 placeholder
+        let note = "", editable = false, updated_at = null, status = "";
         try {
           const r = await fetch("api/notes?file=" + encodeURIComponent(file));
           const d = await r.json();
-          this.original = d.note || "";
-          this.text = d.note || "";
-          this.editable = !!d.editable;
-          if (d.updated_at)
-            this.status = "最后更新：" + d.updated_at.replace("T", " ");
-          // 同步到 #note 的 class（保持旧CSS效果）
-          noteBox.classList.toggle("editable", this.editable);
-          noteBox.classList.toggle("readonly", !this.editable);
+          note = d.note || "";
+          editable = !!d.editable;
+          updated_at = d.updated_at;
+          if (updated_at)
+            status = "最后更新：" + updated_at.replace("T", " ");
         } catch {
-          this.editable = false;
-          this.msg = "备注加载失败";
-          noteBox.classList.remove("editable");
-          noteBox.classList.add("readonly");
+          editable = false;
+          status = "备注加载失败";
         }
+        // 一次性写入，不会闪现 placeholder
+        this.text = note;
+        this.original = note;
+        this.editable = editable;
+        this.status = status;
+        this.msg = "";
+        noteBox.classList.toggle("editable", editable);
+        noteBox.classList.toggle("readonly", !editable);
       },
 
       async saveNote() {
